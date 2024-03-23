@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"html/template"
 	"io"
 	"time"
@@ -19,31 +20,37 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 func main() {
-	e := echo.New()
-	e.Use(middleware.Logger())
-	e.Renderer = &Template{templates: template.Must(template.ParseGlob("public/views/*.html"))}
-	e.Static("/static", "public/static")
-	s := sse.NewServer(nil)
-	defer s.Shutdown()
+	hotReload := flag.Bool("reload", false, "Enable hot-reload")
+	flag.Parse()
 
-	e.GET("/", func(c echo.Context) error {
-		return c.Render(200, "index", nil)
+	server := echo.New()
+	server.Use(middleware.Logger())
+	server.Renderer = &Template{templates: template.Must(template.ParseGlob("public/views/*.html"))}
+	server.Static("/static", "public/static")
+
+	server.GET("/", func(c echo.Context) error {
+		return c.Render(200, "index", struct{ Reload bool }{Reload: *hotReload})
 	})
 
-	// hot-reload
-	e.Any("/events/:channel", func(c echo.Context) error {
-		req := c.Request()
-		res := c.Response()
-		s.ServeHTTP(res, req)
-		return nil
-	})
+	if *hotReload {
+		// hot-reload
+		s := sse.NewServer(nil)
+		defer s.Shutdown()
 
-	go func() {
-		for {
-			s.SendMessage("/events/reload", sse.SimpleMessage("keep-alive"))
-			time.Sleep(30 * time.Second)
-		}
-	}()
+		server.GET("/events/reload", func(c echo.Context) error {
+			req := c.Request()
+			res := c.Response()
+			s.ServeHTTP(res, req)
+			return nil
+		})
 
-	e.Logger.Fatal(e.Start(":8080"))
+		go func() {
+			for {
+				s.SendMessage("/events/reload", sse.SimpleMessage("keep-alive"))
+				time.Sleep(60 * time.Second)
+			}
+		}()
+	}
+
+	server.Logger.Fatal(server.Start(":8080"))
 }

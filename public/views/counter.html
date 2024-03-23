@@ -1,0 +1,6 @@
+{{ block "counter" . }}
+<div x-data="{ count: 0 }">
+	<h1 class="text-xl" x-text="count"></h1>
+	<button class="border-2 rounded-sm px-1.5 py-1 shadow-lg my-1" x-on:click="count++">increment</button>
+</div>
+{{ end }}

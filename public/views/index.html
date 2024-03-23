@@ -8,29 +8,26 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="/static/style.css">
 	<script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
-	<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+	<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/alpine-morph.js"></script>
+	<script defer src="https://unpkg.com/@alpinejs/morph@3.x.x/dist/cdn.min.js"></script>
+	<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="">
 	{{ template "content" . }}
 
-	<!-- The following script section is for development hot-reloading. It can/should be removed in prod. -->
-	<script type="text/javascript">
-		console.log("Creating event source");
-		e = new EventSource('/events/reload');
-
-		e.onerror = function (event) {
-			setTimeout(function () {
-				location.reload();
-			}, 1000);
-		};
-	</script>
-
+	{{ if .Reload }}
+	{{ template "reload" . }}
+	{{ end }}
 </body>
 
 </html>
 {{ end }}
 
 {{ block "content" . }}
-<h1>Hello, THETA!</h1>
+<div class="flex flex-col items-center justify-center text-center mt-2">
+	<h1 class="text-4xl font-bold">Hello, THETA!</h1>
+	<br>
+	{{ template "counter" . }}
+</div>
 {{ end }}
