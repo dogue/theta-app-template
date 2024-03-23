@@ -1,8 +1,6 @@
 {{ block "reload" .}}
 <script type="text/javascript">
-	console.log("Creating event source");
 	e = new EventSource('/events/reload');
-
 	e.onerror = function (event) {
 		setTimeout(function () {
 			location.reload();
