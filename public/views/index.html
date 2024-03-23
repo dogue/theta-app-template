@@ -1,0 +1,36 @@
+{{ block "index" . }}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>THETA App</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/style.css">
+	<script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+</head>
+
+<body class="">
+	{{ template "content" . }}
+
+	<!-- The following script section is for development hot-reloading. It can/should be removed in prod. -->
+	<script type="text/javascript">
+		console.log("Creating event source");
+		e = new EventSource('/events/reload');
+
+		e.onerror = function (event) {
+			setTimeout(function () {
+				location.reload();
+			}, 1000);
+		};
+	</script>
+
+</body>
+
+</html>
+{{ end }}
+
+{{ block "content" . }}
+<h1>Hello, THETA!</h1>
+{{ end }}
